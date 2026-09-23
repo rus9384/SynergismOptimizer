@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "Vue.volar",
+    "oxc.oxc-vscode",
+    "stylelint.vscode-stylelint",
+    "HTMLHint.vscode-htmlhint"
+  ]
+}

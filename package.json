@@ -1,0 +1,55 @@
+{
+  "name": "package.json",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "dependencies": {
+    "break_infinity.js": "^2.2.0",
+    "vue": "^3.5.42",
+    "worker-timers": "^8.0.34"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "@vue/tsconfig": "^0.9.1",
+    "htmlhint": "^1.9.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.5.1",
+    "oxlint": "^1.85.0",
+    "oxlint-tsgolint": "^7.0.2002",
+    "stylelint": "^17.15.0",
+    "stylelint-config-standard": "^40.0.0",
+    "stylelint-order": "^8.1.1",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0",
+    "vue-tsc": "^3.3.11"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "csslint": "npx stylelint **/*.css",
+    "csslint:fix": "npx stylelint **/*.css --fix",
+    "htmlhint": "npx htmlhint **/*.html"
+  },
+  "lint-staged": {
+    "*.{js, mjs, ts}": "oxlint",
+    "*.css": "npx stylelint",
+    "*.html": "npx htmlhint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rus9384/SynergismOptimizer"
+  },
+  "author": "rus9384",
+  "contributors": [
+    "rus9384"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rus9384/SynergismOptimizer/issues"
+  },
+  "homepage": "https://github.com/rus9384/SynergismOptimizer#readme"
+}

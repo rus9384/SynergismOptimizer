@@ -1,0 +1,44 @@
+:root {
+  padding:
+    max(env(safe-area-inset-top), 10px)
+    max(env(safe-area-inset-right), 10px)
+    max(env(safe-area-inset-bottom), 10px)
+    max(env(safe-area-inset-left), 10px);
+  color: #b3b3b3;
+  background-color: #282828;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+button {
+  contain: content;
+  background: none;
+  border: 2px solid gray;
+  border-radius: 5px;
+}
+
+button:hover {
+  backdrop-filter: invert(10%);
+}
+
+.numeric {
+  display: inline-block;
+  position: relative;
+  min-width: 7ch;
+  color: #b3b3b3;
+  text-align: end;
+  vertical-align: -0.15em;
+  line-height: 0;
+}
+
+.numeric::before {
+  content: '8.8.8.8.8.8.8.';
+  position: absolute;
+  right: 0;
+  z-index: -1;
+  opacity: 0.05;
+}
