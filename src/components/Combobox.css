@@ -1,15 +1,15 @@
 @position-try --right-stretch {
   position-area: right;
   min-width: max-content;
-  height: stretch;
   height: -webkit-fill-available;
+  height: stretch;
 }
 
 @position-try --left-stretch {
   position-area: left;
   min-width: max-content;
-  height: stretch;
   height: -webkit-fill-available;
+  height: stretch;
 }
 
 .dropdown {
@@ -47,7 +47,7 @@
 .dropdown > ul {
   overflow-y: auto;
   position-area: bottom;
-  position-try: top, right, --right-stretch, --left-stretch;
+  position-try: top, right, left, --right-stretch, --left-stretch;
   min-width: anchor-size(width);
   max-height: 240px;
   padding: 0;
