@@ -12,7 +12,6 @@
   "id-class-ad-disabled": true,
   "id-unique": true,
   "link-rel-canonical-require": true,
-  "main-require": true,
   "meta-charset-require": true,
   "meta-description-require": false,
   "meta-viewport-require": true,
