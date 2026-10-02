@@ -12,7 +12,7 @@ const activeIndex = ref(selectedIndex.value)
 const selectedLabel = computed(() => props.options[selectedIndex.value]?.label)
 let optionElements: HTMLLIElement[] = []
 
-// eslint-disable-next-line func-style
+// oxlint-disable-next-line func-style
 function initialIndex(): number {
   if (props.options.length === 0)
     return -1
