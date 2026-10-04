@@ -28,14 +28,17 @@ export const toKebabCase = (string: string) => (
  * @param value - string to be parsed
  * @returns Decimal
  */
-export const parseDecimal = (value: string) => {
+export const parseDecimal = (value: string): Decimal => {
   const parts = value.split('e')
-  if (parts[2]?.startsWith('-'))
-    throw new Error("Second exponent can't be negative")
+  if (!(parts[0] || parts[1] || parts[2]))
+    return Decimal.fromMantissaExponent_noNormalize(Number.NaN, Number.NaN)
 
   let mantissa = parts[0] ? Number(parts[0]) : 1
   let exponent = parts[1] ? Number(parts[1]) : (parts[2] ? 1 : 0)
   exponent *= parts[2] ? 10 ** Number(parts[2]) : 1
+  if (Number.isNaN(mantissa) || Number.isNaN(exponent))
+    return Decimal.fromMantissaExponent_noNormalize(Number.NaN, Number.NaN)
+
   mantissa *= 10 ** (exponent % 1)
   exponent = Math.trunc(exponent)
   return Decimal.fromMantissaExponent(mantissa, exponent)
@@ -68,14 +71,14 @@ export const formatNumber = (
   // oxlint-disable-next-line eqeqeq
   if (input == undefined)
     return '0 [und.]'
-  if (Number.isNaN(input))
-    return '0 [NaN]'
 
   const inputType = typeof input
 
   let power = 0
   let mantissa = 0
   if (inputType === 'number') {
+    if (Number.isNaN(input))
+      return '0 [NaN]'
     // oxlint-disable-next-line no-unsafe-type-assertion
     const num = input as number
     if (num < 0) {
@@ -85,6 +88,8 @@ export const formatNumber = (
       mantissa = num / 10 ** power
     }
   } else if (input instanceof Decimal) {
+    if (Number.isNaN(input.m))
+      return '0 [NaN]'
     if (input.lt(d0))
       return `-${formatNumber(input.negated(), accuracy)}`
     power = input.e
