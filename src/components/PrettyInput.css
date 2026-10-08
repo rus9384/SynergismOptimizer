@@ -1,0 +1,126 @@
+.pretty-input {
+  --shade-color: var(--button-color);
+
+  contain: content;
+  display: inline-grid;
+  grid: auto / 6px auto 6px;
+  position: relative;
+  height: max-content;
+  padding: 1px 0;
+  background: var(--button-color);
+  border: 2px solid var(--border-color);
+  border-radius: 5px;
+}
+
+.pretty-input[step] {
+  grid: auto auto / 6px auto 4px 8px;
+}
+
+.pretty-input[disabled] {
+  color: var(--disabled-text-color);
+  background: var(--disabled-border-color);
+  border-color: var(--disabled-border-color);
+  cursor: not-allowed;
+}
+
+.pretty-input.error {
+  --shade-color: var(--error-color);
+
+  background-color: var(--error-color);
+  border-color: var(--error-border-color);
+}
+
+.pretty-input > input {
+  --offset: 0;
+
+  all: inherit;
+  position: relative;
+  left: var(--offset);
+  grid-area: 1 / 1 / -1 / 4;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  outline: none;
+}
+
+.pretty-input > ::placeholder {
+  position: relative;
+  left: calc(0px - var(--offset));
+}
+
+.pretty-input[step] > ::placeholder {
+  left: calc(4px - var(--offset));
+}
+
+.pretty-input > :disabled::placeholder {
+  color: var(--disabled-border-color);
+}
+
+.pretty-input.error > input {
+  caret-color: var(--error-text-color);
+}
+
+.pretty-input::before,
+.pretty-input::after {
+  --direction: right;
+
+  content: '';
+  grid-area: 1 / 1 / -1;
+  z-index: 1;
+  background: linear-gradient(to var(--direction), var(--shade-color) 2px, transparent);
+  pointer-events: none;
+}
+
+.pretty-input::after {
+  --direction: left;
+
+  grid-column: 3;
+}
+
+.pretty-input[step]::after {
+  background: linear-gradient(to var(--direction), var(--shade-color), transparent);
+}
+
+.pretty-input > ::-webkit-inner-spin-button,
+.pretty-input > ::-webkit-outer-spin-button {
+  appearance: none;
+}
+
+.pretty-input > button {
+  display: flex;
+  place-items: center;
+  place-content: center;
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.pretty-input > button:first-of-type {
+  grid-area: 1 / 4 / 2;
+}
+
+.pretty-input > button:last-of-type {
+  grid-area: 2 / 4;
+}
+
+.pretty-input > button:hover {
+  background: var(--button-color);
+}
+
+.pretty-input:not(:has(> .pressed)) > button:hover,
+.pretty-input > button.pressed {
+  font-variation-settings: 'wght' 700;
+}
+
+.pretty-input.error > button {
+  color: var(--error-text-color);
+  background: var(--error-color);
+  border: var(--error-border-color);
+}
