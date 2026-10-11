@@ -20,7 +20,7 @@ const showButtons = attrs.type === 'number' && stepAsNumber
 
 const pattern = attrs.pattern
   ? new RegExp(`^${attrs.pattern as string}$`)
-  : (attrs.type === 'number' ? /^[\d.,-e]*$/ : /^[\u0020-\u007E]*$/)
+  : (attrs.type === 'number' ? /^[\d.,e-]*$/ : /^[\u0020-\u007E]*$/)
 
 let offset = 0
 let shadeLeft = 0
