@@ -136,3 +136,17 @@ export const formatNumber = (
   }
   return `e${formatNumber(power, accuracy)}`
 }
+
+/**
+ * @param style CCS style of an element
+ * @returns Width in pixels, if possible, otherwise 0
+ */
+export const getWidthFromStyle = (style: CSSStyleDeclaration) => {
+  let width = Number.parseFloat(style.width)
+  width = Number.isNaN(width) ? 0 : width
+  let minWidth = Number.parseFloat(style.minWidth)
+  minWidth = Number.isNaN(minWidth) ? 0 : minWidth
+  let maxWidth = Number.parseFloat(style.maxWidth)
+  maxWidth = Number.isNaN(maxWidth) ? Number.POSITIVE_INFINITY : maxWidth
+  return Math.clamp(width, minWidth, maxWidth)
+}
