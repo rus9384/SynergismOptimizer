@@ -13,22 +13,22 @@ const selectedLabel = computed(() => props.options[selectedIndex.value]?.label)
 let optionElements: HTMLLIElement[] = []
 
 // oxlint-disable-next-line func-style
-function initialIndex(): number {
+function initialIndex() {
   if (props.options.length === 0)
     return -1
   const markedIndex = props.options.findLastIndex(option => option.selected)
   return Math.max(0, markedIndex)
 }
 
-const isEnabled = (index: number): boolean => (
+const isEnabled = (index: number) => (
   props.options[index] && !props.options[index]?.disabled
 )
 
-const openPopup = async(): Promise<void> => {
+const openPopup = async() => {
   listbox.value?.showPopover({ source: root.value })
 }
 
-const closePopup = (): void => {
+const closePopup = () => {
   listbox.value?.hidePopover()
 }
 
@@ -36,45 +36,42 @@ const cacheOptionElements = () => {
   optionElements = [...listbox.value?.children ?? []] as HTMLLIElement[]
 }
 
-const scrollActiveOption = (): void => {
+const scrollActiveOption = () => {
   optionElements[activeIndex.value]?.scrollIntoView({ block: 'nearest' })
 }
 
-const chooseOption = (index: number): void => {
+const chooseOption = (index: number) => {
   if (index === -1)
     return
   selectedIndex.value = index
   closePopup()
 }
 
-const findEnabledIndex = (start: number, offset: number): number => {
+const findEnabledIndex = (start: number, offset: number) => {
   const direction = Math.sign(offset)
   let result = start
   start += direction
-  for (let i = start, j = Math.abs(offset); props.options[i]; i += direction, j--) {
-    if (selectedIndex.value !== i && !props.options[i].disabled) {
+  for (let i = start, j = Math.abs(offset); props.options[i] && j; i += direction, j--) {
+    if (selectedIndex.value !== i && !props.options[i].disabled)
       result = i
-      if (j <= 1)
-        break
-    }
   }
   return isEnabled(result) ? result : -1
 }
 
-const moveActive = (offset: number): void => {
+const moveActive = (offset: number) => {
   const start = activeIndex.value === -1 ? 0 : activeIndex.value
   activeIndex.value = findEnabledIndex(start, offset)
   scrollActiveOption()
 }
 
-const setActive = (index: number): void => {
+const setActive = (index: number) => {
   activeIndex.value = isEnabled(index) ? index : -1
 }
 
 let typeahead = ''
 let typeaheadTimer: ReturnType<typeof setTimeout> | undefined
 
-const searchOptions = (key: string): void => {
+const searchOptions = (key: string) => {
   typeahead += key.toLocaleLowerCase()
   clearTimeout(typeaheadTimer)
   typeaheadTimer = setTimeout(() => { typeahead = '' }, 700)
@@ -97,7 +94,7 @@ const searchOptions = (key: string): void => {
   }
 }
 
-const onKeydown = (event: KeyboardEvent): void => {
+const onKeydown = (event: KeyboardEvent) => {
   if (event.altKey || event.ctrlKey || event.metaKey)
     return
 
@@ -170,10 +167,12 @@ onBeforeUnmount(() => {
     class="dropdown"
     type="button"
     role="combobox"
-    :label="selectedLabel"
     :popovertarget="`${id}-listbox`"
     @keydown="onKeydown"
   >
+    <span>
+      {{ selectedLabel }}
+    </span>
     <ul ref="listbox" :id="`${id}-listbox`" role="listbox" popover @toggle="updatePopover">
       <li
         v-for="(option, index) in options"
