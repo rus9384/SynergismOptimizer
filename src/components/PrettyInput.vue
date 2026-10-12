@@ -18,6 +18,9 @@ const fractionsAllowed = stepAsNumber ? stepAsNumber % 1 !== 0 : true
 const inputmode = attrs.type === 'number' ? (fractionsAllowed ? 'decimal' : 'numeric') : 'text'
 const showButtons = attrs.type === 'number' && stepAsNumber
 
+const lowerBound = Number(attrs.min ?? Number.NEGATIVE_INFINITY)
+const upperBound = Number(attrs.max ?? Number.POSITIVE_INFINITY)
+
 const pattern = attrs.pattern
   ? new RegExp(`^${attrs.pattern as string}$`)
   : (attrs.type === 'number' ? /^[\d.,e-]*$/ : /^[\u0020-\u007E]*$/)
@@ -29,8 +32,7 @@ let charWidth = 0
 
 let repeatDelay: number | undefined, repeatInterval: number | undefined
 let spinDirection: 1 | -1 = 1
-const lowerBound = Number(attrs.min ?? Number.NEGATIVE_INFINITY)
-const upperBound = Number(attrs.max ?? Number.POSITIVE_INFINITY)
+let updateFrame = 0
 
 const updateCharWidth = () => {
   if (!input.value || textMeasurer === null)
@@ -87,35 +89,38 @@ const calculateOffset = () => {
     return clientWidth - symbolX - shadeRight
 }
 
-const scrollText = () => requestAnimationFrame(() => {
-  if (!input.value)
-    return
+const scrollText = () => {
+  updateFrame = requestAnimationFrame(() => {
+    updateFrame = 0
+    if (!input.value)
+      return
 
-  let nextOffset = calculateOffset()
-  if (nextOffset === undefined)
-    return // No scrolling is needed
+    let nextOffset = calculateOffset()
+    if (nextOffset === undefined)
+      return // No scrolling is needed
 
-  if (nextOffset < 0) {
-    // If the caret is too far right, scroll the input to the left
-    const { clientWidth, scrollLeft, scrollWidth } = input.value
-    const available = scrollWidth - clientWidth - scrollLeft
-    const scrollDelta = Math.min(-nextOffset, available)
-    input.value.scrollLeft += scrollDelta
-    nextOffset += scrollDelta
-  } else if (nextOffset > 0) {
-    // If the caret is too far left, scroll the input to the right
-    const available = input.value.scrollLeft
-    const scrollDelta = Math.min(nextOffset, available)
-    input.value.scrollLeft -= scrollDelta
-    nextOffset -= scrollDelta
-  }
+    if (nextOffset < 0) {
+      // If the caret is too far right, scroll the input to the left
+      const { clientWidth, scrollLeft, scrollWidth } = input.value
+      const available = scrollWidth - clientWidth - scrollLeft
+      const scrollDelta = Math.min(-nextOffset, available)
+      input.value.scrollLeft += scrollDelta
+      nextOffset += scrollDelta
+    } else if (nextOffset > 0) {
+      // If the caret is too far left, scroll the input to the right
+      const available = input.value.scrollLeft
+      const scrollDelta = Math.min(nextOffset, available)
+      input.value.scrollLeft -= scrollDelta
+      nextOffset -= scrollDelta
+    }
 
-  nextOffset = Math.clamp(nextOffset, -shadeRight, shadeLeft)
-  if (offset !== nextOffset) {
-    input.value.style.setProperty('--offset', `${nextOffset}px`)
-    offset = nextOffset
-  }
-})
+    nextOffset = Math.clamp(nextOffset, -shadeRight, shadeLeft)
+    if (offset !== nextOffset) {
+      input.value.style.setProperty('--offset', `${nextOffset}px`)
+      offset = nextOffset
+    }
+  })
+}
 
 const checkNumber = () => {
   if (!input.value || attrs.type !== 'number')
@@ -246,6 +251,8 @@ onBeforeUnmount(() => {
   stopHolding()
   document.removeEventListener('pointermove', updateHoldingDirection)
   document.removeEventListener('pointerup', stopHolding)
+  if (updateFrame)
+    cancelAnimationFrame(updateFrame)
 })
 </script>
 
