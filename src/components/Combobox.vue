@@ -2,9 +2,11 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import type { SelectData } from '../types';
 import './Combobox.css';
+import Scrollbar from './Scrollbar.vue';
 
 const props = defineProps<SelectData>()
-const root = ref<HTMLDivElement>()
+const root = ref<HTMLButtonElement>()
+const popup = ref<HTMLDivElement>()
 const listbox = ref<HTMLUListElement>()
 const isOpen = ref(false)
 const selectedIndex = ref(initialIndex())
@@ -25,11 +27,11 @@ const isEnabled = (index: number) => (
 )
 
 const openPopup = async() => {
-  listbox.value?.showPopover({ source: root.value })
+  popup.value?.showPopover({ source: root.value })
 }
 
 const closePopup = () => {
-  listbox.value?.hidePopover()
+  popup.value?.hidePopover()
 }
 
 const cacheOptionElements = () => {
@@ -173,18 +175,27 @@ onBeforeUnmount(() => {
     <span>
       {{ selectedLabel }}
     </span>
-    <ul ref="listbox" :id="`${id}-listbox`" role="listbox" popover @toggle="updatePopover">
-      <li
-        v-for="(option, index) in options"
-        v-bind="option"
-        role="option"
-        :checked="index === selectedIndex ? '' : undefined"
-        :active="index === activeIndex ? '' : undefined"
-        @pointerdown.prevent
-        @pointermove="setActive(index)"
-        @click="chooseOption(activeIndex)"
-      >
-      </li>
-    </ul>
+    <div
+      ref="popup"
+      :id="`${id}-listbox`"
+      class="listbox"
+      popover
+      @toggle="updatePopover"
+    >
+      <ul ref="listbox" :id="`${id}-listbox-viewport`" role="listbox">
+        <li
+          v-for="(option, index) in options"
+          v-bind="option"
+          role="option"
+          :checked="index === selectedIndex ? '' : undefined"
+          :active="index === activeIndex ? '' : undefined"
+          @pointerdown.prevent
+          @pointermove="setActive(index)"
+          @click="chooseOption(activeIndex)"
+        >
+        </li>
+      </ul>
+      <Scrollbar axis="vertical" :viewport-id="`${id}-listbox-viewport`" />
+    </div>
   </button>
 </template>

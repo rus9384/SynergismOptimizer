@@ -72,18 +72,23 @@
   rotate: 180deg;
 }
 
-.dropdown > ul {
-  overflow-y: auto;
+.dropdown > .listbox {
   position-area: bottom;
   position-try: top, right, left, --right-stretch, --left-stretch;
   min-width: anchor-size(width);
-  max-height: 240px;
+  height: 240px;
   padding: 0;
-  margin: 0;
   color: var(--text-color);
   background: var(--button-color);
   border: 1px solid var(--border-color);
   border-radius: 5px;
+}
+
+.dropdown > .listbox > ul {
+  overflow-y: auto;
+  max-height: 100%;
+  padding: 0;
+  margin: 0;
   overscroll-behavior: contain;
 
   > li {
@@ -109,4 +114,8 @@
     background: var(--disabled-color);
     cursor: not-allowed;
   }
+}
+
+.dropdown > .listbox > .scrollbar-track {
+  cursor: default;
 }
