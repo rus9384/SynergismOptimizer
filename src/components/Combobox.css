@@ -41,8 +41,8 @@
 
 .dropdown::before {
   content: '';
-  grid-area: 1 / 2 / auto / 5;
   overflow: hidden;
+  grid-area: 1 / 2 / auto / 5;
   height: 100%;
   z-index: 1;
   background: linear-gradient(to left in oklab, var(--button-color) 14px, transparent);
@@ -56,9 +56,9 @@
 
 .dropdown::after {
   content: 'keyboard_arrow_down';
-  grid-area: 1 / 3;
   display: grid;
   place-content: center;
+  grid-area: 1 / 3;
   width: 12px;
   height: 8px;
   z-index: 1;
