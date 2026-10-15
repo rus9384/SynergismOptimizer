@@ -3,18 +3,13 @@ details {
   display: grid;
   grid-template-rows: auto 0fr;
   align-content: start;
-  width: 100%;
-  padding: 7px 10px;
-  background: #222;
-  border-radius: 12px;
   transition: grid-template-rows 0.4s;
 }
 
 summary {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 6px;
+  grid-row: 1;
 }
 
 summary::before {
@@ -34,8 +29,6 @@ summary::before {
 
 ::details-content {
   display: flex;
-  flex-direction: column;
-  gap: 7px;
   overflow: hidden;
   grid-row: 2;
   width: 100%;
@@ -43,18 +36,8 @@ summary::before {
   transition: content-visibility 0.4s allow-discrete;
 }
 
-details > div {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
 details[open] {
   grid-template-rows: auto 1fr;
-}
-
-details > summary {
-  grid-row: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
