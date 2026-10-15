@@ -15,11 +15,23 @@
   transition: opacity 200ms ease 3s;
 }
 
-.scrollbar-track:hover,
+@media (any-pointer: coarse) {
+  .scrollbar-track {
+    pointer-events: none;
+  }
+}
+
 .scrollbar-track.dragging,
-.scrollbar-track.viewport-hovered {
+.scrollbar-track.viewport-active {
   opacity: 1;
-  transition-delay: 0s;
+  transition: opacity 200ms ease 0s;
+}
+
+@media (any-hover: hover) {
+  .scrollbar-track:hover {
+    opacity: 1;
+    transition: opacity 200ms ease 0s;
+  }
 }
 
 .scrollbar-track.vertical {
@@ -41,7 +53,6 @@
   --position: 0;
 
   position: relative;
-  inset: var(--position) auto auto 0;
   border-radius: 4px;
   background: var(--scrollbar-thumb-color);
   touch-action: none;
@@ -49,10 +60,12 @@
 }
 
 .scrollbar-track.vertical > .scrollbar-thumb {
+  top: var(--position);
   width: 100%;
 }
 
 .scrollbar-track.horizontal > .scrollbar-thumb {
+  left: var(--position);
   height: 100%;
 }
 

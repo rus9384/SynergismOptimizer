@@ -1,20 +1,23 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, useAttrs } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import './Scrollbar.css';
 
 const minThumbSize = 20
 
 type Axis = 'horizontal' | 'vertical'
 
-defineOptions({ inheritAttrs: false })
+type Props = {
+  viewportId: string,
+  axis: Axis
+}
 
-const attrs = useAttrs()
+const props = defineProps<Props>()
 const track = ref<HTMLDivElement>()
 const visible = ref(false)
 const thumbSize = ref(0)
 const thumbPosition = ref(0)
 const dragging = ref(false)
-const viewportHovered = ref(false)
+const viewportActive = ref(false)
 
 let viewport: HTMLElement
 let resizeObserver: ResizeObserver | undefined
@@ -22,8 +25,9 @@ let mutationObserver: MutationObserver | undefined
 const observedContents = new Set<Element>()
 
 let updateFrame = 0
+let viewportHovered = false
+let viewportActivityTimeout: ReturnType<typeof setTimeout> | undefined
 let drag: {
-  axis: Axis
   pointerId: number
   startPosition: number
   startScroll: number
@@ -31,19 +35,21 @@ let drag: {
 } | undefined
 
 const updateMetrics = () => {
-  visible.value = viewport.scrollHeight > viewport.clientHeight
+  visible.value = props.axis === 'vertical'
+    ? viewport.scrollHeight > viewport.clientHeight
+    : viewport.scrollWidth > viewport.clientWidth
 
   if (!track.value)
     return
 
-  if (attrs.axis === 'vertical') {
+  if (props.axis === 'vertical') {
     const visibleSize = track.value.clientHeight * viewport.clientHeight / viewport.scrollHeight
     thumbSize.value = Math.max(minThumbSize, visibleSize)
     const contentRange = viewport.scrollHeight - viewport.clientHeight
     thumbPosition.value = contentRange > 0
       ? (track.value.clientHeight - thumbSize.value) * viewport.scrollTop / contentRange
       : 0
-  } else if (attrs.axis === 'horizontal') {
+  } else {
     const visibleSize = track.value.clientWidth * viewport.clientWidth / viewport.scrollWidth
     thumbSize.value = Math.max(minThumbSize, visibleSize)
     const contentRange = viewport.scrollWidth - viewport.clientWidth
@@ -76,11 +82,44 @@ const observeChildren = () => {
   scheduleMetricsUpdate()
 }
 
-const onPointerDown = (event: PointerEvent, axis: Axis) => {
-  if (event.pointerType !== 'mouse' || event.button !== 0)
+const moveThumb = (event: PointerEvent) => {
+  if (event.target !== event.currentTarget || event.pointerType !== 'mouse' || event.button !== 0)
+    return
+  if (props.axis !== 'vertical' && props.axis !== 'horizontal')
     return
 
-  const trackSize = axis === 'vertical'
+  const trackElement = track.value
+  if (!trackElement)
+    return
+
+  const vertical = props.axis === 'vertical'
+  const trackSize = vertical ? trackElement.clientHeight : trackElement.clientWidth
+  const travel = trackSize - thumbSize.value
+  if (travel <= 0)
+    return
+
+  const bounds = trackElement.getBoundingClientRect()
+  let position = vertical ? event.clientY - bounds.top : event.clientX - bounds.left
+  position = position < thumbPosition.value ? position : position - thumbSize.value
+  position = Math.clamp(position, 0, travel)
+  const contentRange = vertical
+    ? viewport.scrollHeight - viewport.clientHeight
+    : viewport.scrollWidth - viewport.clientWidth
+
+  event.preventDefault()
+  if (vertical)
+    viewport.scrollTop = position * contentRange / travel
+  else
+    viewport.scrollLeft = position * contentRange / travel
+}
+
+const onPointerDown = (event: PointerEvent) => {
+  if (event.pointerType !== 'mouse' || event.button !== 0)
+    return
+  if (props.axis !== 'vertical' && props.axis !== 'horizontal')
+    return
+
+  const trackSize = props.axis === 'vertical'
     ? track.value?.clientHeight ?? viewport.clientHeight
     : track.value?.clientWidth ?? viewport.clientWidth
   const travel = trackSize - thumbSize.value
@@ -91,11 +130,10 @@ const onPointerDown = (event: PointerEvent, axis: Axis) => {
   const thumb = event.currentTarget as HTMLElement
   thumb.setPointerCapture(event.pointerId)
   drag = {
-    axis,
     pointerId: event.pointerId,
-    startPosition: axis === 'vertical' ? event.clientY : event.clientX,
-    startScroll: axis === 'vertical' ? viewport.scrollTop : viewport.scrollLeft,
-    travel,
+    startPosition: props.axis === 'vertical' ? event.clientY : event.clientX,
+    startScroll: props.axis === 'vertical' ? viewport.scrollTop : viewport.scrollLeft,
+    travel
   }
   dragging.value = true
 }
@@ -103,15 +141,17 @@ const onPointerDown = (event: PointerEvent, axis: Axis) => {
 const onPointerMove = (event: PointerEvent) => {
   if (!drag || event.pointerId !== drag.pointerId)
     return
+  if (props.axis !== 'vertical' && props.axis !== 'horizontal')
+    return
 
-  const currentPosition = drag.axis === 'vertical' ? event.clientY : event.clientX
-  const contentRange = drag.axis === 'vertical'
+  const currentPosition = props.axis === 'vertical' ? event.clientY : event.clientX
+  const contentRange = props.axis === 'vertical'
     ? viewport.scrollHeight - viewport.clientHeight
     : viewport.scrollWidth - viewport.clientWidth
   const delta = currentPosition - drag.startPosition
   const scrollPosition = drag.startScroll + delta * contentRange / drag.travel
 
-  if (drag.axis === 'vertical')
+  if (props.axis === 'vertical')
     viewport.scrollTop = scrollPosition
   else
     viewport.scrollLeft = scrollPosition
@@ -124,11 +164,28 @@ const onPointerUp = (event: PointerEvent) => {
   dragging.value = false
 }
 
-const onViewportPointerEnter = () => { viewportHovered.value = true }
-const onViewportPointerLeave = () => { viewportHovered.value = false }
+const onViewportScroll = () => {
+  scheduleMetricsUpdate()
+  viewportActive.value = true
+  clearTimeout(viewportActivityTimeout)
+  viewportActivityTimeout = setTimeout(() => {
+    viewportActivityTimeout = undefined
+    viewportActive.value = viewportHovered
+  }, 500)
+}
+
+const onViewportPointerEnter = () => {
+  viewportHovered = true
+  viewportActive.value = true
+}
+
+const onViewportPointerLeave = () => {
+  viewportHovered = false
+  viewportActive.value = viewportActivityTimeout !== undefined
+}
 
 onMounted(() => {
-  const viewportId = attrs['viewport-id']
+  const {viewportId} = props
   if (!track.value || typeof viewportId !== 'string')
     return
 
@@ -138,7 +195,7 @@ onMounted(() => {
 
   viewport = element
   viewport.classList.add('scrollbar-viewport')
-  viewport.addEventListener('scroll', scheduleMetricsUpdate, { passive: true })
+  viewport.addEventListener('scroll', onViewportScroll, { passive: true })
   viewport.addEventListener('pointerenter', onViewportPointerEnter)
   viewport.addEventListener('pointerleave', onViewportPointerLeave)
 
@@ -146,14 +203,14 @@ onMounted(() => {
   resizeObserver.observe(viewport)
   observeChildren()
 
-  mutationObserver = new MutationObserver(scheduleMetricsUpdate)
+  mutationObserver = new MutationObserver(observeChildren)
   mutationObserver.observe(viewport, { childList: true, characterData: true, subtree: true })
   updateMetrics()
 })
 
 onBeforeUnmount(() => {
   viewport?.classList.remove('scrollbar-viewport')
-  viewport?.removeEventListener('scroll', scheduleMetricsUpdate)
+  viewport?.removeEventListener('scroll', onViewportScroll)
   viewport?.removeEventListener('pointerenter', onViewportPointerEnter)
   viewport?.removeEventListener('pointerleave', onViewportPointerLeave)
 
@@ -161,6 +218,7 @@ onBeforeUnmount(() => {
   mutationObserver?.disconnect()
   if (updateFrame)
     cancelAnimationFrame(updateFrame)
+  clearTimeout(viewportActivityTimeout)
 })
 </script>
 
@@ -169,18 +227,23 @@ onBeforeUnmount(() => {
       ref="track"
       class="scrollbar-track"
       :class="{
-        'vertical': attrs.axis === 'vertical',
-        'horizontal': attrs.axis === 'horizontal',
+        'vertical': axis === 'vertical',
+        'horizontal': axis === 'horizontal',
         'hidden': !visible,
         'dragging': dragging,
-        'viewport-hovered': viewportHovered
+        'viewport-active': viewportActive
       }"
+      @pointerdown="moveThumb"
       aria-hidden="true"
     >
       <div
         class="scrollbar-thumb"
-        :style="{ height: `${thumbSize}px`, '--position': `${thumbPosition}px` }"
-        @pointerdown="onPointerDown($event, 'vertical')"
+        :style="{
+          height: axis === 'vertical' ? `${thumbSize}px` : '',
+          width: axis === 'horizontal' ? `${thumbSize}px` : '',
+          '--position': `${thumbPosition}px`
+        }"
+        @pointerdown="onPointerDown"
         @pointermove="onPointerMove"
         @pointerup="onPointerUp"
         @pointercancel="onPointerUp"
