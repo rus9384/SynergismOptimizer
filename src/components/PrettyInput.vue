@@ -123,17 +123,17 @@ const scrollText = () => {
 }
 
 const checkNumber = () => {
-  if (!input.value || attrs.type !== 'number')
+  if (!input.value || !element.value || attrs.type !== 'number')
     return
 
-  input.value.classList.remove('error')
+  element.value.classList.remove('error')
   if (input.value.value === '')
     return
 
   const valueAsDecimal = parseDecimal(input.value.value.replaceAll(',', ''))
   const outOfBounds = valueAsDecimal.lt(lowerBound) || valueAsDecimal.gt(upperBound)
   if (outOfBounds || Number.isNaN(valueAsDecimal.m))
-    input.value.classList.add('error')
+    element.value.classList.add('error')
 }
 
 const updateText = () => {
@@ -142,10 +142,10 @@ const updateText = () => {
 }
 
 const validateNumber = () => {
-  if (!input.value || attrs.type !== 'number')
+  if (!input.value || !element.value || attrs.type !== 'number')
     return
 
-  input.value.classList.remove('error')
+  element.value.classList.remove('error')
   if (input.value.value === '')
     return
 
