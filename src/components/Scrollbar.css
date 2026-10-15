@@ -15,7 +15,7 @@
   transition: opacity 200ms ease 3s;
 }
 
-@media (any-pointer: coarse) {
+@media (pointer: coarse) {
   .scrollbar-track {
     pointer-events: none;
   }

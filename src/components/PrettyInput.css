@@ -12,10 +12,6 @@
   border-radius: 5px;
 }
 
-.pretty-input[step] {
-  grid: auto auto / 6px auto 4px 8px;
-}
-
 .pretty-input[disabled] {
   color: var(--disabled-text-color);
   background: var(--disabled-border-color);
@@ -80,47 +76,57 @@
   grid-column: 3;
 }
 
-.pretty-input[step]::after {
-  background: linear-gradient(to var(--direction), var(--shade-color), transparent);
-}
-
 .pretty-input > ::-webkit-inner-spin-button,
 .pretty-input > ::-webkit-outer-spin-button {
   appearance: none;
 }
 
 .pretty-input > button {
-  display: flex;
-  place-items: center;
-  place-content: center;
-  position: absolute;
-  inset: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  font-size: 12px;
-  line-height: 1;
+  display: none;
 }
 
-.pretty-input > button:first-of-type {
-  grid-area: 1 / 4 / 2;
-}
+@media (any-pointer: fine) {
+  .pretty-input[step] {
+    grid: auto auto / 6px auto 4px 8px;
+  }
 
-.pretty-input > button:last-of-type {
-  grid-area: 2 / 4;
-}
+  .pretty-input[step]::after {
+    background: linear-gradient(to var(--direction), var(--shade-color), transparent);
+  }
 
-.pretty-input > button:hover {
-  background: var(--button-color);
-}
+  .pretty-input > button {
+    display: flex;
+    place-items: center;
+    place-content: center;
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    font-size: 12px;
+    line-height: 1;
+  }
 
-.pretty-input:not(:has(> .pressed)) > button:hover,
-.pretty-input > button.pressed {
-  font-variation-settings: 'wght' 700;
-}
+  .pretty-input > button:first-of-type {
+    grid-area: 1 / 4 / 2;
+  }
 
-.pretty-input.error > button {
-  color: var(--error-text-color);
-  background: var(--error-color);
-  border: var(--error-border-color);
+  .pretty-input > button:last-of-type {
+    grid-area: 2 / 4;
+  }
+
+  .pretty-input > button:hover {
+    background: var(--button-color);
+  }
+
+  .pretty-input:not(:has(> .pressed)) > button:hover,
+  .pretty-input > button.pressed {
+    font-variation-settings: 'wght' 700;
+  }
+
+  .pretty-input.error > button {
+    color: var(--error-text-color);
+    background: var(--error-color);
+    border: var(--error-border-color);
+  }
 }
