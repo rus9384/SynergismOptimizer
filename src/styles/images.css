@@ -1,0 +1,119 @@
+/* Backgrounds */
+div:has(#talisman-power) > img {
+   background:
+    url('https://synergism.cc/Pictures/Default/Sprite Sheets/Researches.png')
+    -544px -128px / 800px 256px;
+}
+
+div:has(#shop-red-luck-1) > img {
+  background:
+    url('https://synergism.cc/Pictures/Default/Sprite Sheets/DiceOfAsmodeus.png')
+    0 / 224px 56px;
+}
+
+div:has(#shop-red-luck-2) > img {
+  background:
+    url('https://synergism.cc/Pictures/Default/Sprite Sheets/DiceOfAsmodeus.png')
+    -56px 0 / 224px 56px;
+}
+
+div:has(#shop-red-luck-3) > img {
+  background:
+    url('https://synergism.cc/Pictures/Default/Sprite Sheets/DiceOfAsmodeus.png')
+    -112px 0 / 224px 56px;
+}
+
+div:has(#shop-red-luck-4) > img {
+  background:
+    url('https://synergism.cc/Pictures/Default/Sprite Sheets/DiceOfAsmodeus.png')
+    -168px 0 / 224px 56px;
+}
+
+div:has(#transcription) > img {
+  background:
+    url('https://synergism.cc/Pictures/Default/Sprite Sheets/Octeracts.png')
+    -192px 0 / 224px 288px;
+}
+
+div:has(#chronos-hepteract) > img {
+  background: url('https://synergism.cc/Pictures/Default/Sprite Sheets/Hepteracts.png');
+}
+
+div:has(#hypercube-hepteract) > img {
+  background: url('https://synergism.cc/Pictures/Default/Sprite Sheets/Hepteracts.png') -56px 0;
+}
+
+div:has(#quark-hepteract) > img {
+  background: url('https://synergism.cc/Pictures/Default/Sprite Sheets/Hepteracts.png') -112px 0;
+}
+
+div:has(#challenge-hepteract) > img {
+  background: url('https://synergism.cc/Pictures/Default/Sprite Sheets/Hepteracts.png') -168px 0;
+}
+
+div:has(#abyss-hepteract) > img {
+  background: url('https://synergism.cc/Pictures/Default/Sprite Sheets/Hepteracts.png') 0 -56px;
+}
+
+div:has(#accelerator-hepteract) > img {
+  background: url('https://synergism.cc/Pictures/Default/Sprite Sheets/Hepteracts.png');
+  background-position: -56px -56px;
+}
+
+div:has(#accelerator-boost-hepteract) > img {
+  background: url('https://synergism.cc/Pictures/Default/Sprite Sheets/Hepteracts.png');
+  background-position: -112px -56px;
+}
+
+div:has(#multiplier-hepteract) > img {
+  background: url('https://synergism.cc/Pictures/Default/Sprite Sheets/Hepteracts.png');
+  background-position: -168px -56px;
+}
+
+div:has(#overflux-powder) > img {
+  background: url('https://synergism.cc/Pictures/Default/Sprite Sheets/Hepteracts.png');
+  background-position: -56px -112px;
+}
+
+div:has(#red-luck) > img {
+  background:
+    url('https://synergism.cc/Pictures/Default/Sprite Sheets/DiceOfAsmodeus.png')
+    0 / 128px 32px;
+}
+
+/* Masks */
+div:has(
+  > .pretty-input > #active-bells,
+  > .pretty-input > #ascension-speed,
+  > .pretty-input > #ambrosia-bar-points
+) > img {
+  mask: url("src/assets/MaskCorner32.png") 0 / 100%;
+}
+
+div:has(
+  > .pretty-input > #subscribers-bonus,
+  > .pretty-input > #current-singularity,
+  > .pretty-input > #base-luck,
+  > .pretty-input > #red-luck,
+  > #current-exalt
+) > img {
+  mask: url("src/assets/MaskCorner64.png") 0 / 100%;
+}
+
+div:has(
+  > .pretty-input > #obt-base,
+  > .pretty-input > #off-base,
+  > .pretty-input > #talisman-power,
+  > .pretty-input > #ascension-spread,
+  > .pretty-input > #luck-conversion
+) > img {
+  mask: url("src/assets/MaskSolid32.png") 0 / 100%;
+}
+
+div:has(
+  > .pretty-input > #rune-si-exp,
+  > .pretty-input > #rune-ia-exp,
+  > #rune-aoag
+) > img {
+  mask: url("src/assets/MaskSolid64.png") 0 / 100%;
+}

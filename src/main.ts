@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 
-createApp(App).mount('body')
+export const textMeasurer = document.createElement('canvas').getContext('2d')
 
 export let isMouseDown = false
 document.addEventListener('mousedown', () => {
@@ -11,3 +11,5 @@ document.addEventListener('mousedown', () => {
 document.addEventListener('mouseup', () => {
   isMouseDown = false
 })
+
+createApp(App).mount('body')
