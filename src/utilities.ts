@@ -66,7 +66,8 @@ const getFormatter = (digits: number, notation?: 'scientific') => {
  */
 export const formatNumber = (
   input: Numeric,
-  accuracy = 0
+  accuracy = 0,
+  long = false
 ): string => {
   // oxlint-disable-next-line eqeqeq
   if (input == undefined)
@@ -101,15 +102,17 @@ export const formatNumber = (
   if (!Number.isFinite(power))
     return 'Infinity'
 
-  // Fix mantissa
-  if (mantissa > 9.9999999) {
-    mantissa = 1
-    power += 1
-  } else if (0.9999999 < mantissa && mantissa < 1) {
-    mantissa = 1
+  if (input instanceof Decimal && power >= (long ? 12 : 6)) {
+    // Fix mantissa
+    if (mantissa > 9.9999999) {
+      mantissa = 1
+      power += 1
+    } else if (0.9999999 < mantissa && mantissa < 1) {
+      mantissa = 1
+    }
   }
 
-  if (power < 6) {
+  if (power < (long ? 12 : 6)) {
     // oxlint-disable-next-line no-unsafe-type-assertion
     let standard = inputType === 'number' ? input as number : mantissa * 10 ** power
     const tooSmallForStandard = power < -3 || (0 < accuracy && accuracy < -power)

@@ -12,18 +12,19 @@ const input = ref<HTMLInputElement>()
 const element = ref<HTMLSpanElement>()
 const spinnerDown = ref<HTMLButtonElement>()
 const spinnerUp = ref<HTMLButtonElement>()
-const buttonsDisabled = computed(() => attrs.disabled as boolean || attrs.readonly as boolean)
+const buttonsDisabled = computed(() => attrs.disabled === true || attrs.readonly === true)
 const stepAsNumber = Number(attrs.step)
 const fractionsAllowed = stepAsNumber ? stepAsNumber % 1 !== 0 : true
 const inputmode = attrs.type === 'number' ? (fractionsAllowed ? 'decimal' : 'numeric') : 'text'
 const showButtons = attrs.type === 'number' && stepAsNumber
+const long = typeof(attrs.step) === 'number' && attrs.step > 0 && attrs.step < 1e6
 
 const lowerBound = Number(attrs.min ?? Number.NEGATIVE_INFINITY)
 const upperBound = Number(attrs.max ?? Number.POSITIVE_INFINITY)
 
-const pattern = attrs.pattern
-  ? new RegExp(`^${attrs.pattern as string}$`)
-  : (attrs.type === 'number' ? /^[\d.,e-]*$/ : /^[\u0020-\u007E]*$/)
+const pattern = attrs.pattern && typeof(attrs.pattern) === 'string'
+  ? new RegExp(`^${attrs.pattern}$`)
+  : (attrs.type === 'number' ? /^[\d.e-]*$/ : /^[\u0020-\u007E]*$/)
 
 let offset = 0
 let shadeLeft = 0
@@ -150,31 +151,38 @@ const validateNumber = () => {
     return
 
   const valueAsDecimal = parseDecimal(input.value.value.replaceAll(',', ''))
-  input.value.value = Number.isNaN(valueAsDecimal.m)
-    ? ''
-    : formatNumber(valueAsDecimal.clamp(lowerBound, upperBound), 3)
+  if (Number.isNaN(valueAsDecimal.m)) {
+    input.value.value = ''
+  } else if (stepAsNumber) {
+    const fixedValue = valueAsDecimal.div(stepAsNumber).round().mul(stepAsNumber)
+    input.value.value = formatNumber(fixedValue.clamp(lowerBound, upperBound), 3, long)
+  } else {
+    input.value.value = formatNumber(valueAsDecimal.clamp(lowerBound, upperBound), 3, long)
+  }
+  input.value.value = input.value.value.replaceAll(',', '')
 }
 
 const step = (direction: 1 | -1) => {
   if (!input.value || input.value.disabled || input.value.readOnly || !input.value.step)
     return
 
-  const valueAsDecimal = parseDecimal(input.value.value.replaceAll(',', '') || '0')
+  const valueAsString = input.value.value || '0'
+  const valueAsDecimal = parseDecimal(valueAsString)
   const absValue = valueAsDecimal.abs()
-  if (absValue.gt(Number.MAX_VALUE) || absValue.neq(d0) && absValue.lt(Number.MIN_VALUE))
+  if (absValue.gte(long ? 1e12 : 1e6) || absValue.neq(d0) && absValue.lt(Number.MIN_VALUE))
     return
 
-  const valueAsNumber = valueAsDecimal.toNumber()
+  const valueAsNumber = Number.parseFloat(valueAsString)
   const previousValue = input.value.value
   if (Number.isNaN(valueAsNumber)) {
     input.value.value = String(input.value.min || '0')
-  } else if (valueAsNumber >= 1e6 && stepAsNumber / valueAsNumber < 0.001) {
-    return
   } else if (valueAsNumber % stepAsNumber === 0) {
-    input.value.value = String(valueAsNumber + direction * stepAsNumber)
+    const nextValue = valueAsNumber + direction * stepAsNumber
+    if (nextValue < (long ? 1e12 : 1e6))
+      input.value.value = String(nextValue)
   } else {
-    let value = valueAsNumber - valueAsNumber % stepAsNumber + (direction === 1 ? stepAsNumber : 0)
-    input.value.value = String(value)
+    const smallerValue = valueAsNumber - valueAsNumber % stepAsNumber
+    input.value.value = String(smallerValue + (direction === 1 ? stepAsNumber : 0))
   }
 
   if (input.value.value !== previousValue)
