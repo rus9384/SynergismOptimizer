@@ -1,6 +1,6 @@
-import Decimal from "break_infinity.js";
-import { d0 } from "./constants";
-import type { Numeric } from "./types";
+import Decimal from 'break_infinity.js';
+import { d0 } from './constants';
+import type { Numeric } from './types';
 
 declare global {
   interface Math {
@@ -23,6 +23,24 @@ Math.clamp = (value: number, min: number, max: number) => Math.max(min, Math.min
 export const toKebabCase = (string: string) => (
   string.replaceAll(/([a-z])([A-Z])/g, '$1-$2').replaceAll(/[\s_]+/g, '-').toLowerCase()
 )
+
+/**
+ * Overrides behavior of division from break_infinity.js
+ * @param value - DecimalSource - a divisor
+ * @returns Decimal - a divided number
+ */
+Decimal.prototype.div = function (value) {
+  // Avoid conversion to Decimal
+  if (typeof value === "number") {
+    if (-1e-307 < value && value < 1e-307)
+      return Decimal.fromMantissaExponent(this.m * 1e-307 / value, this.e + 307);
+    // A safe range where we can just divide the mantissa directly
+    return Decimal.fromMantissaExponent(this.m / value, this.e);
+  }
+
+  const decimal = typeof value === "string" ? new Decimal(value) : value;
+  return Decimal.fromMantissaExponent(this.m / decimal.m, this.e - decimal.e);
+}
 
 /**
  * @param value - string to be parsed
