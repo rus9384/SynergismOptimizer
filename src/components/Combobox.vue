@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import type { SelectData } from '../types';
 import './Combobox.css';
 import Scrollbar from './Scrollbar.vue';
@@ -11,8 +11,30 @@ const listbox = ref<HTMLUListElement>()
 const isOpen = ref(false)
 const selectedIndex = ref(initialIndex())
 const activeIndex = ref(selectedIndex.value)
-const selectedLabel = computed(() => props.options[selectedIndex.value]?.label)
+const selectedValue = ref(String(props.options[selectedIndex.value]?.value ?? ''))
+const selectedLabel = computed(
+  () => props.options[selectedIndex.value]?.label ?? selectedValue.value
+)
+
 let optionElements: HTMLLIElement[] = []
+let valueObserver: MutationObserver | undefined
+
+const syncValue = () => {
+  const value = root.value?.value
+  if (value === undefined || value === selectedValue.value)
+    return
+  selectedValue.value = value
+  selectedIndex.value = props.options.findIndex(option => String(option.value ?? '') === value)
+  activeIndex.value = selectedIndex.value
+}
+
+const selectIndex = (index: number) => {
+  if (index === selectedIndex.value)
+    return
+  selectedIndex.value = index
+  selectedValue.value = String(props.options[index]?.value ?? '')
+  void nextTick(() => root.value?.dispatchEvent(new Event('change', { bubbles: true })))
+}
 
 // oxlint-disable-next-line func-style
 function initialIndex() {
@@ -45,7 +67,7 @@ const scrollActiveOption = () => {
 const chooseOption = (index: number) => {
   if (index === -1)
     return
-  selectedIndex.value = index
+  selectIndex(index)
   closePopup()
 }
 
@@ -89,7 +111,7 @@ const searchOptions = (key: string) => {
         activeIndex.value = index
         scrollActiveOption()
       } else {
-        selectedIndex.value = index
+        selectIndex(index)
       }
       return
     }
@@ -145,7 +167,7 @@ const onKeydown = (event: KeyboardEvent) => {
 
   event.preventDefault()
   if (!isOpen.value)
-    selectedIndex.value = activeIndex.value
+    selectIndex(activeIndex.value)
 }
 
 const updatePopover = () => {
@@ -155,9 +177,15 @@ const updatePopover = () => {
 
 onMounted(() => {
   cacheOptionElements()
+  if (root.value) {
+    valueObserver = new MutationObserver(syncValue)
+    valueObserver.observe(root.value, { attributes: true, attributeFilter: ['value'] })
+    syncValue()
+  }
 })
 
 onBeforeUnmount(() => {
+  valueObserver?.disconnect()
   clearTimeout(typeaheadTimer)
 })
 </script>
@@ -166,10 +194,12 @@ onBeforeUnmount(() => {
   <button 
     ref="root"
     :id
+    :value="selectedValue"
     class="dropdown"
     type="button"
     role="combobox"
     :popovertarget="`${id}-listbox`"
+    @change="syncValue"
     @keydown="onKeydown"
   >
     <span>
