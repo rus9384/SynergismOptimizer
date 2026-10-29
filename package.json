@@ -5,24 +5,26 @@
   "type": "module",
   "dependencies": {
     "break_infinity.js": "^2.2.0",
-    "vue": "^3.5.42",
-    "worker-timers": "^8.0.34"
+    "vue": "^3.5.44",
+    "worker-timers": "^8.0.34",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@types/node": "^24.13.3",
-    "@vitejs/plugin-vue": "^6.0.8",
+    "@types/node": "^26.6.5",
+    "@vitejs/plugin-vue": "^6.0.10",
     "@vue/tsconfig": "^0.9.1",
     "htmlhint": "^1.9.2",
     "husky": "^9.1.7",
-    "lint-staged": "^17.5.1",
-    "oxlint": "^1.85.0",
-    "oxlint-tsgolint": "^7.0.2002",
-    "stylelint": "^17.15.0",
+    "lint-staged": "^17.6.0",
+    "npm-check-updates": "^23.1.1",
+    "oxlint": "^1.89.0",
+    "oxlint-tsgolint": "^7.0.2004",
+    "stylelint": "^17.16.0",
     "stylelint-config-standard": "^40.0.0",
-    "stylelint-order": "^8.1.1",
+    "stylelint-order": "^8.1.2",
     "typescript": "~6.0.2",
-    "vite": "^8.3.0",
-    "vue-tsc": "^3.3.11"
+    "vite": "^8.3.4",
+    "vue-tsc": "^3.3.13"
   },
   "scripts": {
     "dev": "vite",
