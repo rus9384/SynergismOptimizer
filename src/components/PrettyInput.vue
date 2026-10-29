@@ -54,8 +54,12 @@ const updateShadeWidth = () => {
 }
 
 const checkPattern = (event: InputEvent) => {
-  if (event.data && pattern && !pattern.test(event.data))
+  if (event.data && pattern && !pattern.test(event.data)) {
     event.preventDefault()
+  } else if (input.value && input.value.value === 'FAIL') {
+    input.value.value = ''
+    element.value?.classList.remove('error')
+  }
 }
 
 const resetOffset = () => {
@@ -166,7 +170,7 @@ const step = (direction: 1 | -1) => {
   if (!input.value || input.value.disabled || input.value.readOnly || !input.value.step)
     return
 
-  const valueAsString = input.value.value || '0'
+  const valueAsString = input.value.value === 'FAIL' ? '0' : input.value.value || '0'
   const valueAsDecimal = parseDecimal(valueAsString)
   const absValue = valueAsDecimal.abs()
   if (absValue.gte(long ? 1e12 : 1e6) || absValue.neq(d0) && absValue.lt(Number.MIN_VALUE))

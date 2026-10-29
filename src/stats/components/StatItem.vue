@@ -12,7 +12,11 @@ const props = defineProps<StatData>()
     <h4>{{ title }}</h4>
     <Combobox v-if="type === 'select'" :id :options="options ?? []" />
     <PrettyInput v-else-if="type === 'number'" :id :type :placeholder :min :max :step />
-    <input v-else-if="type === 'checkbox'" :id :type />
+    <input v-else-if="type === 'checkbox'"
+      :id
+      :type
+      @change="($event.currentTarget as HTMLInputElement).classList.remove('error')"
+    />
     <input v-else :id :type :placeholder :min :max :step />
   </div>
 </template>
