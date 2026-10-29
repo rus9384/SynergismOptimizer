@@ -21,7 +21,9 @@ Math.clamp = (value: number, min: number, max: number) => Math.max(min, Math.min
  * @returns The string converted to kebab case
  */
 export const toKebabCase = (string: string) => (
-  string.replaceAll(/([a-z])([A-Z])/g, '$1-$2').replaceAll(/[\s_]+/g, '-').toLowerCase()
+  string.replaceAll(/[a-z](?=[A-Z])|[a-zA-Z](?=\d)|\d(?=[a-zA-Z])/g, '$&-')
+    .replaceAll(/[\W_]+/g, '-')
+    .toLowerCase()
 )
 
 /**
