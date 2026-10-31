@@ -87,7 +87,7 @@ div:has(
   > .pretty-input > #ascension-speed,
   > .pretty-input > #ambrosia-bar-points
 ) > img {
-  mask: url("src/assets/MaskCorner32.png") 0 / 100%;
+  mask: url("../assets/MaskCorner32.png") 0 / 100%;
 }
 
 div:has(
@@ -97,7 +97,7 @@ div:has(
   > .pretty-input > #red-luck,
   > #current-exalt
 ) > img {
-  mask: url("src/assets/MaskCorner64.png") 0 / 100%;
+  mask: url("../assets/MaskCorner64.png") 0 / 100%;
 }
 
 div:has(
@@ -107,7 +107,7 @@ div:has(
   > .pretty-input > #ascension-spread,
   > .pretty-input > #luck-conversion
 ) > img {
-  mask: url("src/assets/MaskSolid32.png") 0 / 100%;
+  mask: url("../assets/MaskSolid32.png") 0 / 100%;
 }
 
 div:has(
@@ -115,5 +115,5 @@ div:has(
   > .pretty-input > #rune-ia-exp,
   > #rune-aoag
 ) > img {
-  mask: url("src/assets/MaskSolid64.png") 0 / 100%;
+  mask: url("../assets/MaskSolid64.png") 0 / 100%;
 }
