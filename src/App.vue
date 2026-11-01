@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import Collapsible from './components/Collapsible.vue';
+import FileDrag from './components/FileDrag.vue';
 import PrettyInput from './components/PrettyInput.vue';
 import Scrollbar from './components/Scrollbar.vue';
 import StatItem from './stats/components/StatItem.vue';
@@ -26,16 +28,21 @@ import {
   singularitySection,
   talismanPowerStat
 } from './stats/data.ts';
+import { importStats, importStatsFile } from './stats/import.ts';
 import './styles/fonts/fonts.css';
 import './styles/global.css';
 import './styles/images.css';
+
+const importFileInput = ref<HTMLInputElement | undefined>(undefined);
 </script>
 
 <template>
+  <FileDrag @file="importStatsFile" label="Import Save" />
   <article id="stats">
     <header>
       <h2>Stats</h2>
-      <button id="import">Import Save</button>
+      <button id="import" @click="importFileInput?.click()">Import Save</button>
+      <input ref="importFileInput" type="file" hidden @change="importStats">
       <button id="stats-filter">
         ☰
       </button>
@@ -66,7 +73,7 @@ import './styles/images.css';
           <hr>
           <div title="Total Cube Amount Exponent">
             <h4>Total Cube Amount Exponent</h4>
-            <PrettyInput id="cubes-total" min="0" />
+            <PrettyInput field="cubesTotal" type="number" min="6" max="1806" step="1" />
           </div>
         </Collapsible>
         <Collapsible id="hepteracts" title="Hepteracts">

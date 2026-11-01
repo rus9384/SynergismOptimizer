@@ -8,6 +8,7 @@
   --disabled-border-color: gray;
   --disabled-text-color: #b3b3b3;
   --error-color: #700000;
+  --error-hover-color: #800;
   --error-text-color: #ffadad;
   --error-border-color: #936c6c;
   --scrollbar-track-color: #222;
@@ -127,7 +128,7 @@ input[type="checkbox" i] {
   padding: 0;
   margin: 0;
   appearance: none;
-  background: linear-gradient(to right, var(--button-color) 25%, transparent 75%);
+  background: var(--button-color);
   border: 2px solid var(--border-color);
   border-radius: 9999px;
   cursor: pointer;
@@ -145,7 +146,7 @@ input[type="checkbox" i]::before {
   inset: 2px auto 2px 2px;
   height: auto;
   aspect-ratio: 1;
-  border-radius: 50%;
+  border-radius: 9999px;
   background: var(--text-color);
   transition: left 0.2s ease;
 }
@@ -162,6 +163,19 @@ input[type="checkbox" i]:disabled::before {
   color: var(--error-text-color);
   background-color: var(--error-color);
   border-color: var(--error-border-color);
+}
+
+button.error:hover {
+  background-color: var(--error-hover-color);
+}
+
+input[type="checkbox" i].error {
+  background: var(--error-color);
+  border-color: var(--error-border-color);
+}
+
+input[type="checkbox" i].error::before {
+  background: var(--error-text-color);
 }
 
 img {
@@ -230,6 +244,10 @@ img {
   grid-area: 1 / 1 / -1;
   padding: 0 3px 0 10px;
 
+  &::before {
+    content: '';
+  }
+
   @container scroll-state(scrollable: block-end) {
     &::after {
       content: '';
@@ -240,10 +258,6 @@ img {
       margin: 0 10px;
       background: linear-gradient(to top, #222 5px, transparent);
     }
-  }
-
-  &::before {
-    content: '';
   }
 
   section {
@@ -301,6 +315,13 @@ img {
 
     width: 0;
     min-width: min(100px, 100%);
+  }
+
+  .pretty-input.stale {
+    --button-color: #282828;
+    --text-color: #b3b3b3;
+    --border-color: gray;
+    --placeholder-color: gray;
   }
 
   input[type="checkbox" i] {
