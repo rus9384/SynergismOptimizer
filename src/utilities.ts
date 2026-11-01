@@ -122,7 +122,7 @@ export const formatNumber = (
   if (!Number.isFinite(power))
     return 'Infinity'
 
-  if (input instanceof Decimal && power >= (long ? 12 : 6)) {
+  if (power >= (long ? 12 : 6)) {
     // Fix mantissa
     if (mantissa > 9.9999999) {
       mantissa = 1
