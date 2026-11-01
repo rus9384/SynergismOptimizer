@@ -1,10 +1,10 @@
 import type { InputTypeHTMLAttribute, OptionHTMLAttributes } from "vue"
 
 export type StatData = {
+  field: string,
   title: string
   src?: string
   alt?: string
-  id: string
   type: InputTypeHTMLAttribute | "select"
   options?: OptionHTMLAttributes[]
   placeholder?: string
