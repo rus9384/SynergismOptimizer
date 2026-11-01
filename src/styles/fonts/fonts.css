@@ -7,6 +7,30 @@
   unicode-range: U+002D, U+002E, U+0030-0039, U+0045; /* '-', '.', digits, 'E' */
 }
 
+@font-face {
+  font-family: 'Material Symbols Rounded';
+  font-style: normal;
+  font-weight: normal bold;
+  font-display: block;
+  src: url('./MaterialSymbolsRounded.woff2') format('woff2');
+}
+
+.material-symbols-rounded {
+  display: inline-block;
+  direction: ltr;
+  font-family: 'Material Symbols Rounded', sans-serif;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: normal;
+  font-feature-settings: 'liga';
+  line-height: 1;
+  overflow-wrap: normal;
+  white-space: nowrap;
+  letter-spacing: normal;
+  text-transform: none;
+  -webkit-font-smoothing: antialiased;
+}
+
 html {
   font-family:
     -apple-system,
