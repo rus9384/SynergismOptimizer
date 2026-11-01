@@ -4,7 +4,8 @@ import type { OptionHTMLAttributes } from 'vue'
 export type DropdownValue = string | number | undefined
 
 export type SelectData = {
-  id: string
+  field: string,
+  ariaLabelledby: string,
   options: OptionHTMLAttributes[]
 }
 
