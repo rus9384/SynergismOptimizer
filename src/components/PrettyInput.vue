@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import Decimal from 'break_infinity.js';
 import { computed, onBeforeUnmount, onMounted, ref, useAttrs, type InputHTMLAttributes } from 'vue';
 import { d0 } from '../constants';
 import { isMouseDown, textMeasurer } from '../main';
-import { formatNumber, getWidthFromStyle, parseDecimal } from '../utilities';
+import { allStats, baseStats } from '../stats/data';
+import { formatNumber, getWidthFromStyle, parseDecimal, toKebabCase } from '../utilities';
 import './PrettyInput.css';
 
 defineOptions({ inheritAttrs: false })
@@ -17,7 +19,7 @@ const stepAsNumber = Number(attrs.step)
 const fractionsAllowed = stepAsNumber ? stepAsNumber % 1 !== 0 : true
 const inputmode = attrs.type === 'number' ? (fractionsAllowed ? 'decimal' : 'numeric') : 'text'
 const showButtons = attrs.type === 'number' && stepAsNumber
-const long = typeof(attrs.step) === 'number' && attrs.step > 0 && attrs.step < 1e6
+const long = typeof(attrs.step) === 'number' && (0 < attrs.step && attrs.step < 1e6)
 
 const lowerBound = Number(attrs.min ?? Number.NEGATIVE_INFINITY)
 const upperBound = Number(attrs.max ?? Number.POSITIVE_INFINITY)
@@ -56,7 +58,8 @@ const updateShadeWidth = () => {
 const checkPattern = (event: InputEvent) => {
   if (event.data && pattern && !pattern.test(event.data)) {
     event.preventDefault()
-  } else if (input.value && input.value.value === 'FAIL') {
+  } else if (input.value && allStats[attrs.field as string] === 'FAIL') {
+    allStats[attrs.field as string] = undefined
     input.value.value = ''
     element.value?.classList.remove('error')
   }
@@ -90,14 +93,17 @@ const calculateOffset = () => {
 
   // Check if the text would fit if we moved the input to the right
   const symbolX = input.value.value.length * charWidth
-  if (symbolX < clientWidth)
+  if (symbolX < clientWidth - shadeLeft - shadeRight)
     return clientWidth - symbolX - shadeRight
 }
 
 const scrollText = () => {
+  if (!input.value || document.activeElement !== input.value)
+    return
+
   updateFrame = requestAnimationFrame(() => {
     updateFrame = 0
-    if (!input.value)
+    if (!input.value || document.activeElement !== input.value)
       return
 
     let nextOffset = calculateOffset()
@@ -136,8 +142,9 @@ const checkNumber = () => {
     return
 
   const valueAsDecimal = parseDecimal(input.value.value.replaceAll(',', ''))
-  const outOfBounds = valueAsDecimal.lt(lowerBound) || valueAsDecimal.gt(upperBound)
-  if (outOfBounds || Number.isNaN(valueAsDecimal.m))
+  let outOfBounds = Number.isNaN(valueAsDecimal.m)
+  outOfBounds ||= valueAsDecimal.lt(lowerBound) || valueAsDecimal.gt(upperBound)
+  if (outOfBounds)
     element.value.classList.add('error')
 }
 
@@ -146,24 +153,45 @@ const updateText = () => {
   scrollText()
 }
 
+const updateValue = () => {
+  if (!input.value || !element.value)
+    return
+
+  element.value.classList.remove('error')
+  if (attrs.type === 'number')
+    validateNumber()
+  else
+    allStats[attrs.field as string] = input.value.value
+}
+
 const validateNumber = () => {
   if (!input.value || !element.value || attrs.type !== 'number')
     return
 
-  element.value.classList.remove('error')
-  if (input.value.value === '')
+  if (input.value.value === '') {
+    allStats[attrs.field as string] = undefined
     return
+  }
 
   const valueAsDecimal = parseDecimal(input.value.value.replaceAll(',', ''))
+  let fixedValue: Decimal | undefined = valueAsDecimal
   if (Number.isNaN(valueAsDecimal.m)) {
+    fixedValue = undefined
     input.value.value = ''
   } else if (stepAsNumber) {
-    const fixedValue = valueAsDecimal.div(stepAsNumber).round().mul(stepAsNumber)
+    fixedValue = valueAsDecimal.div(stepAsNumber).round().mul(stepAsNumber)
+    fixedValue = fixedValue.clamp(lowerBound, upperBound)
     input.value.value = formatNumber(fixedValue.clamp(lowerBound, upperBound), 3, long)
   } else {
+    fixedValue = valueAsDecimal.clamp(lowerBound, upperBound)
     input.value.value = formatNumber(valueAsDecimal.clamp(lowerBound, upperBound), 3, long)
   }
   input.value.value = input.value.value.replaceAll(',', '')
+
+  allStats[attrs.field as string] =
+    typeof baseStats[attrs.field as string] === 'number' && fixedValue !== undefined
+      ? fixedValue.toNumber()
+      : fixedValue
 }
 
 const step = (direction: 1 | -1) => {
@@ -179,14 +207,18 @@ const step = (direction: 1 | -1) => {
   const valueAsNumber = Number.parseFloat(valueAsString)
   const previousValue = input.value.value
   if (Number.isNaN(valueAsNumber)) {
-    input.value.value = String(input.value.min || '0')
+    allStats[attrs.field as string] = input.value.min || 0
+    input.value.value = String(allStats[attrs.field as string])
   } else if (valueAsNumber % stepAsNumber === 0) {
     const nextValue = valueAsNumber + direction * stepAsNumber
-    if (nextValue < (long ? 1e12 : 1e6))
+    if (nextValue < (long ? 1e12 : 1e6)) {
+      allStats[attrs.field as string] = nextValue
       input.value.value = String(nextValue)
+    }
   } else {
     const smallerValue = valueAsNumber - valueAsNumber % stepAsNumber
-    input.value.value = String(smallerValue + (direction === 1 ? stepAsNumber : 0))
+    allStats[attrs.field as string] = smallerValue + (direction === 1 ? stepAsNumber : 0)
+    input.value.value = String(allStats[attrs.field as string])
   }
 
   if (input.value.value !== previousValue)
@@ -281,11 +313,12 @@ onBeforeUnmount(() => {
     <input
       ref="input"
       v-bind="attrs"
+      :id="toKebabCase($attrs.field as string)"
       :type="'text'"
       :inputmode="attrs.inputmode as InputHTMLAttributes['inputmode'] ?? inputmode"
       @beforeinput="checkPattern"
       @input="updateText"
-      @change="validateNumber"
+      @change="updateValue"
       @selectionchange="scrollText"
       @blur="resetOffset"
     >
